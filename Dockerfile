@@ -19,5 +19,12 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 8080 5050
 
+# Health check script
+COPY healthcheck.sh /healthcheck.sh
+RUN chmod +x /healthcheck.sh
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /healthcheck.sh
+
 ENV UVICORN_CMD="uvicorn api.app:app --host=0.0.0.0 --port=8000"
 CMD ["bash", "-lc", "nginx -g 'daemon off;' & ${UVICORN_CMD}"]
